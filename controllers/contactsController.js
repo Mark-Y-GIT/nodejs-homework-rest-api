@@ -1,9 +1,11 @@
 const {
-  listContacts,
-  contactById,
-  removeContact,
-  addContact,
-  updateContact,
+  contactsService: {
+    listContacts,
+    contactById,
+    removeContact,
+    addContact,
+    updateContact,
+  },
 } = require('../services');
 
 const getAllContacts = async (_, res, next) => {
