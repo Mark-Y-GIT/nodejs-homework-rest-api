@@ -17,7 +17,12 @@ const {
     deleteContactValidation,
     favoriteContactToggleValidation,
   },
-} = require('../../validation/');
+  userValidation: { auth },
+} = require('../../middleware');
+
+contactsRouter.all('/', auth);
+contactsRouter.all('/:contactId', auth);
+contactsRouter.all('/:contactId/favorite', auth);
 
 contactsRouter.get('/', getAllContacts);
 

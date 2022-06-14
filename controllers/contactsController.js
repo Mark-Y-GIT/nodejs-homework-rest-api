@@ -5,12 +5,18 @@ const {
     removeContact,
     addContact,
     updateContact,
+    updateStatusContact,
   },
 } = require('../services');
 
-const getAllContacts = async (_, res, next) => {
+const getAllContacts = async (req, res, next) => {
   try {
-    const allContacts = await listContacts();
+    const {
+      query,
+      user: { id },
+    } = req;
+
+    const allContacts = await listContacts({ query, id });
     res.json(allContacts);
   } catch (error) {
     next(error);
@@ -19,9 +25,11 @@ const getAllContacts = async (_, res, next) => {
 
 const getContactById = async (req, res, next) => {
   try {
+    const { id } = req.user;
+
     const { contactId } = req.params;
 
-    const contact = await contactById(contactId);
+    const contact = await contactById({ contactId, id });
 
     if (contact) {
       res.json(contact);
@@ -36,7 +44,10 @@ const getContactById = async (req, res, next) => {
 
 const createContact = async (req, res, next) => {
   try {
-    const contact = await addContact(req.body);
+    const { id } = req.user;
+    const { body } = req;
+
+    const contact = await addContact({ body, id });
 
     if (contact) {
       res.status(201).json(contact);
@@ -49,9 +60,10 @@ const createContact = async (req, res, next) => {
 
 const deleteContact = async (req, res, next) => {
   try {
+    const { id } = req.user;
     const { contactId } = req.params;
 
-    const contact = await removeContact(contactId);
+    const contact = await removeContact({ contactId, id });
     if (contact) {
       res.json({ message: 'contact deleted' });
       return;
@@ -65,9 +77,11 @@ const deleteContact = async (req, res, next) => {
 
 const updateContactById = async (req, res, next) => {
   try {
+    const { id } = req.user;
     const { contactId } = req.params;
+    const { body } = req;
 
-    const updatedContact = await updateContact(contactId, req.body);
+    const updatedContact = await updateContact({ contactId, body, id });
 
     if (updatedContact) {
       res.json(updatedContact);
@@ -83,8 +97,10 @@ const updateContactById = async (req, res, next) => {
 const favoriteContactToggle = async (req, res, next) => {
   try {
     const { contactId } = req.params;
+    const { body } = req;
+    const { id } = req.user;
 
-    const updatedContact = await updateContact(contactId, req.body);
+    const updatedContact = await updateStatusContact({ contactId, body, id });
 
     if (updatedContact) {
       res.json(updatedContact);

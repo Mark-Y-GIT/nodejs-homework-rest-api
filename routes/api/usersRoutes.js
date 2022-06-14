@@ -1,12 +1,26 @@
 const express = require('express');
 const usersRouter = express.Router();
 const {
-  userValidation: { registrationValidation },
-} = require('../../validation');
+  userValidation: { userRequestValidation, userSubValidation, auth },
+} = require('../../middleware');
 const {
-  authController: { registerUserController },
+  usersController: {
+    registerUserController,
+    loginUserController,
+    logoutUserController,
+    currentUserController,
+    subUpdateUserController,
+  },
 } = require('../../controllers/');
 
-usersRouter.post('/', registrationValidation, registerUserController);
+usersRouter.post('/signup', userRequestValidation, registerUserController);
+
+usersRouter.post('/login', userRequestValidation, loginUserController);
+
+usersRouter.get('/logout', auth, logoutUserController);
+
+usersRouter.get('/current', auth, currentUserController);
+
+usersRouter.patch('/:userId', auth, userSubValidation, subUpdateUserController);
 
 module.exports = usersRouter;
