@@ -1,19 +1,28 @@
 const express = require('express');
 const contactsRouter = express.Router();
 const {
-  getAllContacts,
-  getContactById,
-  createContact,
-  deleteContact,
-  updateContactById,
-  favoriteContactToggle,
-} = require('../../controllers');
+  contactsController: {
+    getAllContacts,
+    getContactById,
+    createContact,
+    deleteContact,
+    updateContactById,
+    favoriteContactToggle,
+  },
+} = require('../../controllers/');
 const {
-  createContactValidation,
-  updateContactByIdValidation,
-  deleteContactValidation,
-  favoriteContactToggleValidation,
-} = require('../../validation/validation');
+  contactsValidation: {
+    createContactValidation,
+    updateContactByIdValidation,
+    deleteContactValidation,
+    favoriteContactToggleValidation,
+  },
+  userValidation: { auth },
+} = require('../../middleware');
+
+contactsRouter.all('/', auth);
+contactsRouter.all('/:contactId', auth);
+contactsRouter.all('/:contactId/favorite', auth);
 
 contactsRouter.get('/', getAllContacts);
 
