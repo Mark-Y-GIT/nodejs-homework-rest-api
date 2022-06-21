@@ -2,6 +2,7 @@ const { createError } = require('../helpers');
 const { User } = require('../models/userModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+
 const {
   env: { SECRET_KEY },
 } = require('../helpers');
@@ -76,10 +77,17 @@ const updateSubStatus = async ({ userId, body }) => {
   });
 };
 
+const uploadAvatar = async (id, data) => {
+  return await User.findByIdAndUpdate(id, data, {
+    new: true,
+  });
+};
+
 module.exports = {
   registerUser,
   loginUser,
   authenticateUser,
   logoutUser,
   updateSubStatus,
+  uploadAvatar,
 };

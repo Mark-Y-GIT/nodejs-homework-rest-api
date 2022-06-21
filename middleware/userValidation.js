@@ -6,7 +6,7 @@ const {
 } = require('../models/userModel');
 
 const {
-  authService: { authenticateUser },
+  userService: { authenticateUser },
 } = require('../services/');
 
 const userRequestValidation = (req, _, next) => {
