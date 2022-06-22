@@ -1,5 +1,7 @@
 const express = require('express');
 const usersRouter = express.Router();
+const { uploadImage } = require('../../middleware/upload');
+
 const {
   userValidation: { userRequestValidation, userSubValidation, auth },
 } = require('../../middleware');
@@ -10,6 +12,7 @@ const {
     logoutUserController,
     currentUserController,
     subUpdateUserController,
+    avatarUpdateUserController,
   },
 } = require('../../controllers/');
 
@@ -17,10 +20,14 @@ usersRouter.post('/signup', userRequestValidation, registerUserController);
 
 usersRouter.post('/login', userRequestValidation, loginUserController);
 
-usersRouter.get('/logout', auth, logoutUserController);
+usersRouter.use(auth);
 
-usersRouter.get('/current', auth, currentUserController);
+usersRouter.get('/logout', logoutUserController);
 
-usersRouter.patch('/:userId', auth, userSubValidation, subUpdateUserController);
+usersRouter.get('/current', currentUserController);
+
+usersRouter.patch('/avatars', uploadImage, avatarUpdateUserController);
+
+usersRouter.patch('/:userId', userSubValidation, subUpdateUserController);
 
 module.exports = usersRouter;

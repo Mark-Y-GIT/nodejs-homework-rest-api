@@ -1,15 +1,23 @@
 const {
-  authService: { registerUser, loginUser, logoutUser, updateSubStatus },
+  userService: {
+    registerUser,
+    loginUser,
+    logoutUser,
+    updateSubStatus,
+    uploadAvatar,
+  },
+  imageService: { imageMod },
 } = require('../services');
 
 const registerUserController = async (req, res, next) => {
   try {
-    const { email, subscription } = await registerUser(req.body);
+    const { email, subscription, avatarURL } = await registerUser(req.body);
 
     res.status(201).json({
       user: {
         email,
         subscription,
+        avatarURL,
       },
     });
   } catch (error) {
@@ -79,10 +87,30 @@ const subUpdateUserController = async (req, res, next) => {
   }
 };
 
+const avatarUpdateUserController = async (req, res, next) => {
+  try {
+    const { _id: id } = req.user;
+    const { file } = req;
+
+    const modifiedImage = await imageMod({ id, file });
+
+    await uploadAvatar(id, {
+      avatarURL: modifiedImage,
+    });
+
+    res.json({
+      avatarURL: modifiedImage,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   registerUserController,
   loginUserController,
   logoutUserController,
   currentUserController,
   subUpdateUserController,
+  avatarUpdateUserController,
 };
