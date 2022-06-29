@@ -1,6 +1,7 @@
 const { Schema, model } = require('mongoose');
 const Joi = require('joi');
 const gravatar = require('gravatar');
+const { v4: uuidv4 } = require('uuid');
 
 const userSchema = new Schema(
   {
@@ -28,6 +29,15 @@ const userSchema = new Schema(
         return gravatar.url(this.email, {}, true);
       },
     },
+    verify: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+      required: [true, 'Verify token is required'],
+      default: uuidv4(),
+    },
   },
   { timestamps: true },
 );
@@ -43,4 +53,13 @@ const statusSubUpdateSchema = Joi.object({
   subscription: Joi.string().valid('starter', 'pro', 'business').required(),
 });
 
-module.exports = { User, registerSchema, statusSubUpdateSchema };
+const reVerificationUserSchema = Joi.object({
+  email: Joi.string().required(),
+});
+
+module.exports = {
+  User,
+  registerSchema,
+  statusSubUpdateSchema,
+  reVerificationUserSchema,
+};

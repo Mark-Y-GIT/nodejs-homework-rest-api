@@ -3,7 +3,12 @@ const usersRouter = express.Router();
 const { uploadImage } = require('../../middleware/upload');
 
 const {
-  userValidation: { userRequestValidation, userSubValidation, auth },
+  userValidation: {
+    userRequestValidation,
+    userSubValidation,
+    userValidationRequest,
+    auth,
+  },
 } = require('../../middleware');
 const {
   usersController: {
@@ -13,8 +18,18 @@ const {
     currentUserController,
     subUpdateUserController,
     avatarUpdateUserController,
+    verifyUserController,
+    reVerificationUserController,
   },
 } = require('../../controllers/');
+
+usersRouter.get('/verify/:verificationToken', verifyUserController);
+
+usersRouter.post(
+  '/verify',
+  userValidationRequest,
+  reVerificationUserController,
+);
 
 usersRouter.post('/signup', userRequestValidation, registerUserController);
 

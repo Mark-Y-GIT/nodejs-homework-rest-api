@@ -5,13 +5,20 @@ const {
     logoutUser,
     updateSubStatus,
     uploadAvatar,
+    verifyUser,
+    reVerification,
   },
   imageService: { imageMod },
+
+  emailService: { sendEmail },
 } = require('../services');
 
 const registerUserController = async (req, res, next) => {
   try {
-    const { email, subscription, avatarURL } = await registerUser(req.body);
+    const { email, subscription, avatarURL, verificationToken } =
+      await registerUser(req.body);
+
+    await sendEmail(email, verificationToken);
 
     res.status(201).json({
       user: {
@@ -106,6 +113,53 @@ const avatarUpdateUserController = async (req, res, next) => {
   }
 };
 
+const verifyUserController = async (req, res, next) => {
+  try {
+    const { verificationToken } = req.params;
+
+    const user = await verifyUser({ verificationToken });
+
+    if (user) {
+      res.json({ message: 'Verification successful' });
+      return;
+    }
+
+    res.status(404).json({ message: 'User not found' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const reVerificationUserController = async (req, res, next) => {
+  try {
+    const user = await reVerification(req.body);
+
+    if (!user) {
+      res.status(404).json({
+        message: 'User not found',
+      });
+      return;
+    }
+
+    const { verify, verificationToken, email } = user;
+
+    if (user && !verify) {
+      await sendEmail(email, verificationToken);
+
+      res.json({
+        message: 'Verification email sent',
+      });
+      return;
+    }
+
+    res.status(400).json({
+      message: 'Verification has already been passed',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   registerUserController,
   loginUserController,
@@ -113,4 +167,6 @@ module.exports = {
   currentUserController,
   subUpdateUserController,
   avatarUpdateUserController,
+  verifyUserController,
+  reVerificationUserController,
 };

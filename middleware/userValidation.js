@@ -3,6 +3,7 @@ const { createError } = require('../helpers');
 const {
   registerSchema,
   statusSubUpdateSchema,
+  reVerificationUserSchema,
 } = require('../models/userModel');
 
 const {
@@ -46,4 +47,18 @@ const userSubValidation = (req, _, next) => {
   next();
 };
 
-module.exports = { userRequestValidation, userSubValidation, auth };
+const userValidationRequest = (req, _, next) => {
+  const { error } = reVerificationUserSchema.validate(req.body);
+
+  if (error) {
+    next(createError(400, error.message.replace(/"/g, '')));
+  }
+  next();
+};
+
+module.exports = {
+  userRequestValidation,
+  userSubValidation,
+  userValidationRequest,
+  auth,
+};

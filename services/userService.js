@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const {
-  env: { SECRET_KEY },
+  env: { JWT_KEY },
 } = require('../helpers');
 
 const registerUser = async userData => {
@@ -23,10 +23,14 @@ const registerUser = async userData => {
 };
 
 const generateToken = payload =>
-  jwt.sign(payload, SECRET_KEY, { expiresIn: '1h' });
+  jwt.sign(payload, JWT_KEY, { expiresIn: '1h' });
 
 const loginUser = async ({ email, password }) => {
   const user = await User.findOne({ email });
+
+  if (user && !user.verify) {
+    throw createError(401, 'Please confirm your email');
+  }
 
   if (!user) {
     throw createError(401, 'Email or password is wrong');
@@ -52,7 +56,7 @@ const loginUser = async ({ email, password }) => {
 
 const authenticateUser = async token => {
   try {
-    const payload = jwt.verify(token, SECRET_KEY);
+    const payload = jwt.verify(token, JWT_KEY);
 
     const { id } = payload;
 
@@ -83,6 +87,21 @@ const uploadAvatar = async (id, data) => {
   });
 };
 
+const verifyUser = async ({ verificationToken }) => {
+  const verifyUserResponse = await User.findOneAndUpdate(
+    { verificationToken, verify: false },
+    { verify: true, verificationToken: null },
+  );
+
+  return verifyUserResponse;
+};
+
+const reVerification = async ({ email }) => {
+  const reVerifyUserResponse = await User.findOne({ email });
+
+  return reVerifyUserResponse;
+};
+
 module.exports = {
   registerUser,
   loginUser,
@@ -90,4 +109,6 @@ module.exports = {
   logoutUser,
   updateSubStatus,
   uploadAvatar,
+  verifyUser,
+  reVerification,
 };
